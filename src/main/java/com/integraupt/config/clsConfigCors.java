@@ -6,48 +6,35 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import java.util.List;
+
 /**
- * Configuración de CORS para permitir peticiones desde el frontend React
- * Permite conexiones desde http://localhost:5173 (Vite) y otros puertos comunes
- * 
- * @author IntegraUPT Team
- * @version 1.0.0
+ * Configuración global de CORS para Render + Netlify
+ * Sin necesidad de Spring Security
  */
 @Configuration
 public class clsConfigCors {
 
-    /**
-     * Configura el filtro CORS para toda la aplicación
-     * @return CorsFilter configurado
-     */
     @Bean
     public CorsFilter corsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Permitir credenciales
         config.setAllowCredentials(true);
-        
-        // Orígenes permitidos (frontend React)
-        config.addAllowedOrigin("http://localhost:5173"); // Vite-dev
-        config.addAllowedOrigin("http://localhost:3000"); // Create React App
-        config.addAllowedOrigin("http://localhost:4173"); // Vite Preview
-        config.addAllowedOrigin("https://intregaupt.netlify.app"); // Producción en Netlify
-        
-        // Permitir todos los headers
+
+        // 🔹 Dominios permitidos
+        config.setAllowedOriginPatterns(List.of(
+            "http://localhost:5173",   // desarrollo local
+            "http://localhost:3000",
+            "https://intregraupt.netlify.app" // dominio de producción
+        ));
+
+        // 🔹 Permitir todo tipo de cabeceras y métodos HTTP
         config.addAllowedHeader("*");
-        
-        // Permitir todos los métodos HTTP
-        config.addAllowedMethod("GET");
-        config.addAllowedMethod("POST");
-        config.addAllowedMethod("PUT");
-        config.addAllowedMethod("DELETE");
-        config.addAllowedMethod("OPTIONS");
-        config.addAllowedMethod("PATCH");
-        
-        // Aplicar configuración a todas las rutas
+        config.addAllowedMethod("*");
+
+        // 🔹 Registrar configuración para todas las rutas
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        
+
         return new CorsFilter(source);
     }
 }
